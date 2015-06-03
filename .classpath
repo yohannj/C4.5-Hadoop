@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<classpath>
+	<classpathentry kind="src" path="src"/>
+	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
+	<classpathentry kind="lib" path="/usr/lib/hadoop/client/commons-logging.jar"/>
+	<classpathentry kind="lib" path="/usr/lib/hadoop/client/hadoop-common.jar"/>
+	<classpathentry kind="lib" path="/usr/lib/hadoop/client/hadoop-mapreduce-client-core.jar"/>
+	<classpathentry kind="lib" path="/usr/lib/hadoop/client/log4j.jar"/>
+	<classpathentry kind="lib" path="/usr/lib/hadoop/client/slf4j-api.jar"/>
+	<classpathentry kind="lib" path="/usr/lib/spark/lib/spark-assembly.jar"/>
+	<classpathentry kind="lib" path="/usr/lib/spark/lib/spark-assembly-1.3.0-cdh5.4.0-hadoop2.6.0-cdh5.4.0.jar"/>
+	<classpathentry kind="lib" path="/usr/lib/spark/lib/spark-examples.jar"/>
+	<classpathentry kind="lib" path="/usr/lib/spark/lib/spark-examples-1.3.0-cdh5.4.0-hadoop2.6.0-cdh5.4.0.jar"/>
+	<classpathentry kind="output" path="bin"/>
+</classpath>
