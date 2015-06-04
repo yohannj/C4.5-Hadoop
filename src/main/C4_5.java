@@ -11,25 +11,53 @@ import org.apache.hadoop.mapred.JobConf;
 
 public class C4_5 {
 
-	public static void main(String[] args) throws IOException {
-		if (args.length != 2) {
-			System.err.println("Usage: Weather <input path> <output path>");
-			System.exit(-1);
-		}
+    private static String input_path;
+    private static String summarized_data_path;
+    private static String output_path;
 
-		JobConf conf = new JobConf(C4_5.class);
-		conf.setJobName("C4.5");
+    public static void main(String[] args) throws IOException {
+        if (args.length != 3) {
+            System.err.println("Usage: main/C4_5 <input path> <tmp path> <output path>");
+            System.exit(-1);
+        }
 
-		FileInputFormat.addInputPath(conf, new Path(args[0]));
-		FileOutputFormat.setOutputPath(conf, new Path(args[1]));
+        input_path = args[0];
+        summarized_data_path = args[1] + "/summarized_data";
+        output_path = args[2];
 
-		conf.setMapperClass(SummarizeMapper.class);
-		conf.setReducerClass(SummarizeReducer.class);
+        summarizeData();
+    }
 
-		conf.setOutputKeyClass(TextArrayWritable.class);
-		conf.setOutputValueClass(IntWritable.class);
+    private static void summarizeData() throws IOException {
+        JobConf conf = new JobConf(C4_5.class);
+        conf.setJobName("C4.5");
 
-		JobClient.runJob(conf);
-	}
+        FileInputFormat.addInputPath(conf, new Path(input_path));
+        FileOutputFormat.setOutputPath(conf, new Path(summarized_data_path));
+
+        conf.setMapperClass(SummarizeMapper.class);
+        conf.setReducerClass(SummarizeReducer.class);
+
+        conf.setOutputKeyClass(TextArrayWritable.class);
+        conf.setOutputValueClass(IntWritable.class);
+
+        JobClient.runJob(conf);
+    }
+
+    private static void calcAttributesInfo(String[] conditions) throws IOException {
+        JobConf conf = new JobConf(C4_5.class);
+        conf.setJobName("C4.5");
+
+        FileInputFormat.addInputPath(conf, new Path(summarized_data_path));
+        FileOutputFormat.setOutputPath(conf, new Path(output_path));
+
+        /*conf.setMapperClass(SummarizeMapper.class);
+        conf.setReducerClass(SummarizeReducer.class);
+
+        conf.setOutputKeyClass(TextArrayWritable.class);
+        conf.setOutputValueClass(IntWritable.class);
+        
+        JobClient.runJob(conf);*/
+    }
 
 }

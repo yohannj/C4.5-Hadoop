@@ -10,7 +10,7 @@ import org.apache.hadoop.mapred.Reducer;
 import org.apache.hadoop.mapred.Reporter;
 
 public class SummarizeReducer extends MapReduceBase implements
-		Reducer<TextArrayWritable, IntWritable, TextArrayWritable, IntWritable> {
+ Reducer<TextArrayWritable, IntWritable, TextArrayWritable, IntWritable> {
 
 	public void reduce(TextArrayWritable key, Iterator<IntWritable> values,
 			OutputCollector<TextArrayWritable, IntWritable> output, Reporter reporter)
