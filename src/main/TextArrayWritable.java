@@ -2,6 +2,7 @@ package main;
 
 import org.apache.hadoop.io.ArrayWritable;
 import org.apache.hadoop.io.Text;
+import org.apache.hadoop.io.Writable;
 import org.apache.hadoop.io.WritableComparable;
 
 public class TextArrayWritable extends ArrayWritable implements WritableComparable<TextArrayWritable> {
@@ -24,7 +25,26 @@ public class TextArrayWritable extends ArrayWritable implements WritableComparab
                 return res;
             }
         }
+        
         return 0;
+    }
+    
+    
+
+    @Override
+    public String toString() {
+        Writable[] data = get();
+        if (data.length == 0) {
+            return "";
+        }
+
+        String res = data[0].toString();
+
+        for (int i = 1; i < data.length; ++i) {
+            res += "," + data[i].toString();
+        }
+
+        return res;
     }
 
 }

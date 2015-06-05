@@ -42,7 +42,7 @@ public class C4_5 {
         job.setOutputKeyClass(TextArrayWritable.class);
         job.setOutputValueClass(IntWritable.class);
 
-        job.waitForCompletion(true);
+        job.waitForCompletion(false);
     }
 
     private static void calcAttributesInfo() throws Exception {
@@ -59,7 +59,7 @@ public class C4_5 {
         job.setOutputKeyClass(Text.class);
         job.setOutputValueClass(MapWritable.class);
 
-        job.waitForCompletion(true);
+        job.waitForCompletion(false);
     }
 
 }
