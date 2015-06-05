@@ -1,5 +1,6 @@
 package main;
 
+import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.Path;
 import org.apache.hadoop.io.IntWritable;
 import org.apache.hadoop.io.MapWritable;
@@ -29,7 +30,7 @@ public class C4_5 {
     }
 
     private static void summarizeData() throws Exception {
-        Job job = Job.getInstance();
+        Job job = Job.getInstance(new Configuration());
         job.setJarByClass(C4_5.class);
         job.setJobName("C4.5_summarizeData");
 
@@ -42,7 +43,7 @@ public class C4_5 {
         job.setOutputKeyClass(TextArrayWritable.class);
         job.setOutputValueClass(IntWritable.class);
 
-        job.waitForCompletion(false);
+        job.waitForCompletion(true);
     }
 
     private static void calcAttributesInfo() throws Exception {
@@ -59,7 +60,7 @@ public class C4_5 {
         job.setOutputKeyClass(Text.class);
         job.setOutputValueClass(MapWritable.class);
 
-        job.waitForCompletion(false);
+        job.waitForCompletion(true);
     }
 
 }

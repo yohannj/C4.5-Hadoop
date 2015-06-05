@@ -1,28 +1,25 @@
 package main;
 
 import java.io.IOException;
-import java.util.Iterator;
 
 import org.apache.hadoop.io.IntWritable;
 import org.apache.hadoop.io.MapWritable;
 import org.apache.hadoop.io.Text;
 import org.apache.hadoop.mapreduce.Reducer;
 
-
 public class AttributeInfoReducer extends Reducer<Text, AttributeCounterWritable, Text, MapWritable> {
 
-    public void reduce(Text key, Iterator<AttributeCounterWritable> values, Context context) throws IOException, InterruptedException {
+    public void reduce(Text key, Iterable<AttributeCounterWritable> values, Context context) throws IOException, InterruptedException {
 
         MapWritable res = new MapWritable();
         Text value;
         Text classification;
         IntWritable count;
 
-        while (values.hasNext()) {
-            AttributeCounterWritable tmp = values.next();
-            value = tmp.getValue();
-            classification = tmp.getClassification();
-            count = tmp.getCount();
+        for (AttributeCounterWritable cur_attribute_counter : values) {
+            value = cur_attribute_counter.getValue();
+            classification = cur_attribute_counter.getClassification();
+            count = cur_attribute_counter.getCount();
 
             if (!res.containsKey(value)) {
                 res.put(value, new MapWritable());
@@ -34,7 +31,7 @@ public class AttributeInfoReducer extends Reducer<Text, AttributeCounterWritable
             }
             ((IntWritable) cur_map.get(classification)).set(((IntWritable) cur_map.get(classification)).get() + count.get());
         }
-        
+
         context.write(key, res);
     }
 }
