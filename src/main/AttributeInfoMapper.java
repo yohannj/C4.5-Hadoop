@@ -4,16 +4,18 @@ import java.io.IOException;
 
 import org.apache.hadoop.io.IntWritable;
 import org.apache.hadoop.io.Text;
-import org.apache.hadoop.mapred.MapReduceBase;
-import org.apache.hadoop.mapred.Mapper;
-import org.apache.hadoop.mapred.OutputCollector;
-import org.apache.hadoop.mapred.Reporter;
+import org.apache.hadoop.mapreduce.Mapper;
 
-public class AttributeInfoMapper extends MapReduceBase implements Mapper<TextArrayWritable, IntWritable, Text, AttributeCounterWritable> {
+public class AttributeInfoMapper extends Mapper<TextArrayWritable, IntWritable, Text, AttributeCounterWritable> {
 
-    public void map(TextArrayWritable key, IntWritable value, OutputCollector<Text, AttributeCounterWritable> output, Reporter reporter) throws IOException {
+    public void map(TextArrayWritable key, IntWritable value, Context context) throws IOException, InterruptedException {
 
-        output.collect(null, null);
+        Text[] attributes_and_class = (Text[]) key.get();
+        Text classification = attributes_and_class[attributes_and_class.length - 1];
+
+        for (Integer i = 0; i < attributes_and_class.length - 1; ++i) {
+            context.write(new Text(i.toString()), new AttributeCounterWritable(attributes_and_class[i], classification, value));
+        }
 
     }
 }

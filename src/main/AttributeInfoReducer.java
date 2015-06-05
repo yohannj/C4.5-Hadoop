@@ -3,17 +3,38 @@ package main;
 import java.io.IOException;
 import java.util.Iterator;
 
+import org.apache.hadoop.io.IntWritable;
 import org.apache.hadoop.io.MapWritable;
 import org.apache.hadoop.io.Text;
-import org.apache.hadoop.mapred.MapReduceBase;
-import org.apache.hadoop.mapred.OutputCollector;
-import org.apache.hadoop.mapred.Reducer;
-import org.apache.hadoop.mapred.Reporter;
+import org.apache.hadoop.mapreduce.Reducer;
 
-public class AttributeInfoReducer extends MapReduceBase implements Reducer<Text, AttributeCounterWritable, Text, MapWritable> {
 
-    public void reduce(Text key, Iterator<AttributeCounterWritable> values, OutputCollector<Text, MapWritable> output, Reporter reporter) throws IOException {
+public class AttributeInfoReducer extends Reducer<Text, AttributeCounterWritable, Text, MapWritable> {
 
-        output.collect(null, null);
+    public void reduce(Text key, Iterator<AttributeCounterWritable> values, Context context) throws IOException, InterruptedException {
+
+        MapWritable res = new MapWritable();
+        Text value;
+        Text classification;
+        IntWritable count;
+
+        while (values.hasNext()) {
+            AttributeCounterWritable tmp = values.next();
+            value = tmp.getValue();
+            classification = tmp.getClassification();
+            count = tmp.getCount();
+
+            if (!res.containsKey(value)) {
+                res.put(value, new MapWritable());
+            }
+            MapWritable cur_map = (MapWritable) res.get(value);
+
+            if (!cur_map.containsKey(classification)) {
+                cur_map.put(classification, new IntWritable(0));
+            }
+            ((IntWritable) cur_map.get(classification)).set(((IntWritable) cur_map.get(classification)).get() + count.get());
+        }
+        
+        context.write(key, res);
     }
 }

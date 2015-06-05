@@ -18,8 +18,8 @@ public class AttributeCounterWritable implements WritableComparable<AttributeCou
         set(new Text(), new Text(), new IntWritable());
     }
 
-    public AttributeCounterWritable(String value, String classification, int count) {
-        set(new Text(value), new Text(classification), new IntWritable(count));
+    public AttributeCounterWritable(Text value, Text classification, IntWritable count) {
+        set(value, classification, count);
     }
 
     public void set(Text value, Text classification, IntWritable count) {
