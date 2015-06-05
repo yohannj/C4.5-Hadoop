@@ -1,13 +1,12 @@
 package main;
 
-import java.io.IOException;
-
 import org.apache.hadoop.fs.Path;
 import org.apache.hadoop.io.IntWritable;
-import org.apache.hadoop.mapred.FileInputFormat;
-import org.apache.hadoop.mapred.FileOutputFormat;
-import org.apache.hadoop.mapred.JobClient;
-import org.apache.hadoop.mapred.JobConf;
+import org.apache.hadoop.io.MapWritable;
+import org.apache.hadoop.io.Text;
+import org.apache.hadoop.mapreduce.Job;
+import org.apache.hadoop.mapreduce.lib.input.FileInputFormat;
+import org.apache.hadoop.mapreduce.lib.output.FileOutputFormat;
 
 public class C4_5 {
 
@@ -15,7 +14,7 @@ public class C4_5 {
     private static String summarized_data_path;
     private static String output_path;
 
-    public static void main(String[] args) throws IOException {
+    public static void main(String[] args) throws Exception {
         if (args.length != 3) {
             System.err.println("Usage: main/C4_5 <input path> <tmp path> <output path>");
             System.exit(-1);
@@ -26,38 +25,41 @@ public class C4_5 {
         output_path = args[2];
 
         summarizeData();
+        calcAttributesInfo();
     }
 
-    private static void summarizeData() throws IOException {
-        JobConf conf = new JobConf(C4_5.class);
-        conf.setJobName("C4.5");
+    private static void summarizeData() throws Exception {
+        Job job = Job.getInstance();
+        job.setJarByClass(C4_5.class);
+        job.setJobName("C4.5_summarizeData");
 
-        FileInputFormat.addInputPath(conf, new Path(input_path));
-        FileOutputFormat.setOutputPath(conf, new Path(summarized_data_path));
+        FileInputFormat.addInputPath(job, new Path(input_path));
+        FileOutputFormat.setOutputPath(job, new Path(summarized_data_path));
 
-        conf.setMapperClass(SummarizeMapper.class);
-        conf.setReducerClass(SummarizeReducer.class);
+        job.setMapperClass(SummarizeMapper.class);
+        job.setReducerClass(SummarizeReducer.class);
 
-        conf.setOutputKeyClass(TextArrayWritable.class);
-        conf.setOutputValueClass(IntWritable.class);
+        job.setOutputKeyClass(TextArrayWritable.class);
+        job.setOutputValueClass(IntWritable.class);
 
-        JobClient.runJob(conf);
+        job.waitForCompletion(true);
     }
 
-    private static void calcAttributesInfo(String[] conditions) throws IOException {
-        JobConf conf = new JobConf(C4_5.class);
-        conf.setJobName("C4.5");
+    private static void calcAttributesInfo() throws Exception {
+        Job job = Job.getInstance();
+        job.setJarByClass(C4_5.class);
+        job.setJobName("C4.5_calcAttributesInfo");
 
-        FileInputFormat.addInputPath(conf, new Path(summarized_data_path));
-        FileOutputFormat.setOutputPath(conf, new Path(output_path));
+        FileInputFormat.addInputPath(job, new Path(summarized_data_path));
+        FileOutputFormat.setOutputPath(job, new Path(output_path));
 
-        /*conf.setMapperClass(SummarizeMapper.class);
-        conf.setReducerClass(SummarizeReducer.class);
+        job.setMapperClass(AttributeInfoMapper.class);
+        job.setReducerClass(AttributeInfoReducer.class);
 
-        conf.setOutputKeyClass(TextArrayWritable.class);
-        conf.setOutputValueClass(IntWritable.class);
-        
-        JobClient.runJob(conf);*/
+        job.setOutputKeyClass(Text.class);
+        job.setOutputValueClass(MapWritable.class);
+
+        job.waitForCompletion(true);
     }
 
 }
