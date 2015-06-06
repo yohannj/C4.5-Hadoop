@@ -4,6 +4,7 @@ import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.Path;
 import org.apache.hadoop.io.IntWritable;
 import org.apache.hadoop.io.MapWritable;
+import org.apache.hadoop.io.NullWritable;
 import org.apache.hadoop.io.Text;
 import org.apache.hadoop.mapreduce.Job;
 import org.apache.hadoop.mapreduce.lib.input.FileInputFormat;
@@ -15,6 +16,7 @@ public class C4_5 {
 
     private static String input_path;
     private static String summarized_data_path;
+    private static String calc_attributes_info_path;
     private static String output_path;
 
     public static void main(String[] args) throws Exception {
@@ -25,6 +27,7 @@ public class C4_5 {
 
         input_path = args[0];
         summarized_data_path = args[1] + "/summarized_data";
+        calc_attributes_info_path = args[1] + "/calc_attributes_info";
         output_path = args[2];
 
         summarizeData();
@@ -56,7 +59,7 @@ public class C4_5 {
         job.setJobName("C4.5_calcAttributesInfo");
 
         FileInputFormat.addInputPath(job, new Path(summarized_data_path));
-        FileOutputFormat.setOutputPath(job, new Path(output_path));
+        FileOutputFormat.setOutputPath(job, new Path(calc_attributes_info_path));
 
         job.setMapperClass(AttributeInfoMapper.class);
         job.setReducerClass(AttributeInfoReducer.class);
@@ -72,7 +75,22 @@ public class C4_5 {
     }
     
     private static void findBestAttribute() throws Exception {
+        Job job = Job.getInstance();
+        job.setJarByClass(C4_5.class);
+        job.setJobName("C4.5_findBestAttribute");
+
+        FileInputFormat.addInputPath(job, new Path(calc_attributes_info_path));
+        FileOutputFormat.setOutputPath(job, new Path(output_path));
+
+        job.setMapperClass(FindBestAttributeMapper.class);
+        job.setReducerClass(FindBestAttributeReducer.class);
+
+        job.setInputFormatClass(SequenceFileInputFormat.class);
+        job.setOutputKeyClass(NullWritable.class);
+        job.setOutputValueClass(AttributeGainRatioWritable.class);
+        job.setOutputFormatClass(SequenceFileOutputFormat.class);
         
+        job.waitForCompletion(true);
     }
 
 }
