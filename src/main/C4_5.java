@@ -7,7 +7,9 @@ import org.apache.hadoop.io.MapWritable;
 import org.apache.hadoop.io.Text;
 import org.apache.hadoop.mapreduce.Job;
 import org.apache.hadoop.mapreduce.lib.input.FileInputFormat;
+import org.apache.hadoop.mapreduce.lib.input.SequenceFileInputFormat;
 import org.apache.hadoop.mapreduce.lib.output.FileOutputFormat;
+import org.apache.hadoop.mapreduce.lib.output.SequenceFileOutputFormat;
 
 public class C4_5 {
 
@@ -27,6 +29,7 @@ public class C4_5 {
 
         summarizeData();
         calcAttributesInfo();
+        findBestAttribute();
     }
 
     private static void summarizeData() throws Exception {
@@ -42,6 +45,7 @@ public class C4_5 {
 
         job.setOutputKeyClass(TextArrayWritable.class);
         job.setOutputValueClass(IntWritable.class);
+        job.setOutputFormatClass(SequenceFileOutputFormat.class);
 
         job.waitForCompletion(true);
     }
@@ -57,10 +61,18 @@ public class C4_5 {
         job.setMapperClass(AttributeInfoMapper.class);
         job.setReducerClass(AttributeInfoReducer.class);
 
+        job.setInputFormatClass(SequenceFileInputFormat.class);
+        job.setMapOutputKeyClass(Text.class);
+        job.setMapOutputValueClass(AttributeCounterWritable.class);
         job.setOutputKeyClass(Text.class);
         job.setOutputValueClass(MapWritable.class);
-
+        job.setOutputFormatClass(SequenceFileOutputFormat.class);
+        
         job.waitForCompletion(true);
+    }
+    
+    private static void findBestAttribute() throws Exception {
+        
     }
 
 }

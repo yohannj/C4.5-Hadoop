@@ -13,13 +13,10 @@ public class TextArrayWritable extends ArrayWritable implements WritableComparab
 
     @Override
     public int compareTo(TextArrayWritable o) {
-        System.out.println("Hello");
         int size_diff = this.get().length - o.get().length;
         if (size_diff != 0) {
             return size_diff;
         }
-
-        System.out.println("World");
 
         for (int i = 0; i < this.get().length; ++i) {
             int res = ((Text) this.get()[i]).compareTo((Text) o.get()[i]);
@@ -28,8 +25,6 @@ public class TextArrayWritable extends ArrayWritable implements WritableComparab
                 return res;
             }
         }
-
-        System.out.println("!");
 
         return 0;
     }
