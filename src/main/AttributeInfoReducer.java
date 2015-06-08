@@ -10,7 +10,6 @@ import org.apache.hadoop.mapreduce.Reducer;
 public class AttributeInfoReducer extends Reducer<Text, AttributeCounterWritable, Text, MapWritable> {
 
     public void reduce(Text key, Iterable<AttributeCounterWritable> values, Context context) throws IOException, InterruptedException {
-
         MapWritable res = new MapWritable();
         Text value;
         Text classification;
@@ -22,12 +21,12 @@ public class AttributeInfoReducer extends Reducer<Text, AttributeCounterWritable
             count = cur_attribute_counter.getCount();
 
             if (!res.containsKey(value)) {
-                res.put(value, new MapWritable());
+                res.put(new Text(value), new MapWritable());
             }
             MapWritable cur_map = (MapWritable) res.get(value);
 
             if (!cur_map.containsKey(classification)) {
-                cur_map.put(classification, new IntWritable(0));
+                cur_map.put(new Text(classification), new IntWritable(0));
             }
             ((IntWritable) cur_map.get(classification)).set(((IntWritable) cur_map.get(classification)).get() + count.get());
         }

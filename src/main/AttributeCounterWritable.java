@@ -57,15 +57,15 @@ public class AttributeCounterWritable implements WritableComparable<AttributeCou
     @Override
     public int compareTo(AttributeCounterWritable o) {
         int res = value.compareTo(o.value);
-        if(res != 0) {
+        if (res != 0) {
             return res;
         }
-        
+
         res = classification.compareTo(o.classification);
-        if(res != 0) {
+        if (res != 0) {
             return res;
         }
-        
+
         return count.compareTo(o.count);
     }
 

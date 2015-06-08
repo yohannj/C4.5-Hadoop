@@ -58,7 +58,7 @@ public class AttributeGainRatioWritable implements WritableComparable<AttributeG
 
     @Override
     public String toString() {
-        return name + "," + gain_ratio;
+        return name + "," + gain_ratio.get();
     }
 
 }

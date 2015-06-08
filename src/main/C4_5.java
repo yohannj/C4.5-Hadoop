@@ -70,10 +70,10 @@ public class C4_5 {
         job.setOutputKeyClass(Text.class);
         job.setOutputValueClass(MapWritable.class);
         job.setOutputFormatClass(SequenceFileOutputFormat.class);
-        
+
         job.waitForCompletion(true);
     }
-    
+
     private static void findBestAttribute() throws Exception {
         Job job = Job.getInstance();
         job.setJarByClass(C4_5.class);
@@ -86,10 +86,12 @@ public class C4_5 {
         job.setReducerClass(FindBestAttributeReducer.class);
 
         job.setInputFormatClass(SequenceFileInputFormat.class);
+        job.setMapOutputKeyClass(NullWritable.class);
+        job.setMapOutputValueClass(AttributeGainRatioWritable.class);
         job.setOutputKeyClass(NullWritable.class);
         job.setOutputValueClass(AttributeGainRatioWritable.class);
-        job.setOutputFormatClass(SequenceFileOutputFormat.class);
-        
+        //job.setOutputFormatClass(SequenceFileOutputFormat.class);
+
         job.waitForCompletion(true);
     }
 
