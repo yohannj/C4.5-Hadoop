@@ -27,7 +27,6 @@ import org.apache.hadoop.mapreduce.Mapper;
 public class SummarizeMapper extends Mapper<LongWritable, Text, TextArrayWritable, IntWritable> {
 
     public void map(LongWritable key, Text value, Context context) throws IOException, InterruptedException {
-
         String[] line_splitted = value.toString().split("\t");
         Text[] my_tmp_key = new Text[line_splitted.length];
         for (int i = 0; i < line_splitted.length; ++i) {

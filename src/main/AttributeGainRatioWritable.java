@@ -28,23 +28,29 @@ import org.apache.hadoop.io.WritableComparable;
 public class AttributeGainRatioWritable implements WritableComparable<AttributeGainRatioWritable> {
 
     private Text name;
+    private TextArrayWritable values;
     private DoubleWritable gain_ratio;
 
     public AttributeGainRatioWritable() {
-        set(new Text(), new DoubleWritable());
+        set(new Text(), new TextArrayWritable(), new DoubleWritable());
     }
 
-    public AttributeGainRatioWritable(Text name, DoubleWritable gain_ratio) {
-        set(name, gain_ratio);
+    public AttributeGainRatioWritable(Text name, TextArrayWritable values, DoubleWritable gain_ratio) {
+        set(name, values, gain_ratio);
     }
 
-    public void set(Text name, DoubleWritable gain_ratio) {
+    public void set(Text name, TextArrayWritable values, DoubleWritable gain_ratio) {
         this.name = name;
+        this.values = values;
         this.gain_ratio = gain_ratio;
     }
 
     public Text getname() {
         return name;
+    }
+    
+    public TextArrayWritable getValues() {
+        return values;
     }
 
     public DoubleWritable getGainRatio() {
@@ -54,12 +60,14 @@ public class AttributeGainRatioWritable implements WritableComparable<AttributeG
     @Override
     public void readFields(DataInput in) throws IOException {
         name.readFields(in);
+        values.readFields(in);
         gain_ratio.readFields(in);
     }
 
     @Override
     public void write(DataOutput out) throws IOException {
         name.write(out);
+        values.write(out);
         gain_ratio.write(out);
     }
 
@@ -75,7 +83,7 @@ public class AttributeGainRatioWritable implements WritableComparable<AttributeG
 
     @Override
     public String toString() {
-        return name + "," + gain_ratio.get();
+        return name + "," + values.toString() + "," + gain_ratio;
     }
 
 }

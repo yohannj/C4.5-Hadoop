@@ -17,7 +17,16 @@
 
 package main;
 
+import java.io.BufferedReader;
+import java.io.InputStreamReader;
+import java.util.ArrayDeque;
+import java.util.Deque;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Map.Entry;
+
 import org.apache.hadoop.conf.Configuration;
+import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.Path;
 import org.apache.hadoop.io.IntWritable;
 import org.apache.hadoop.io.MapWritable;
@@ -31,10 +40,11 @@ import org.apache.hadoop.mapreduce.lib.output.SequenceFileOutputFormat;
 
 public class C4_5 {
 
-    private static String input_path;
-    private static String summarized_data_path;
-    private static String calc_attributes_info_path;
-    private static String output_path;
+    private static Path input_path;
+    private static Path tmp_path;
+    private static Path summarized_data_path;
+    private static Path calc_attributes_info_path;
+    private static Path output_path;
 
     public static void main(String[] args) throws Exception {
         if (args.length != 3) {
@@ -42,23 +52,46 @@ public class C4_5 {
             System.exit(-1);
         }
 
-        input_path = args[0];
-        summarized_data_path = args[1] + "/summarized_data";
-        calc_attributes_info_path = args[1] + "/calc_attributes_info";
-        output_path = args[2];
+        input_path = new Path(args[0]);
+        tmp_path = new Path(args[1]);
+        summarized_data_path = new Path(args[1] + "/summarized_data");
+        calc_attributes_info_path = new Path(args[1] + "/calc_attributes_info");
+        output_path = new Path(args[2]);
+        FileSystem fs = FileSystem.get(new Configuration());
 
+        //Job which key result is a line of data and value is a counter
         summarizeData();
-        calcAttributesInfo();
-        findBestAttribute();
+
+        Map<Map<String, String>, String> last_node_of = new HashMap<Map<String, String>, String>();
+        Deque<Map<String, String>> conditions_to_test = new ArrayDeque<Map<String, String>>();
+
+        Map<String, String> init = new HashMap<String, String>();
+        last_node_of.put(init, null);
+        conditions_to_test.add(init);
+
+        while (!conditions_to_test.isEmpty()) {
+            calcAttributesInfo(conditions_to_test.pop());
+            findBestAttribute();
+
+            BufferedReader br = new BufferedReader(new InputStreamReader(fs.open(new Path(output_path + "/part-r-00000"))));
+            String line;
+            line = br.readLine();
+            System.out.println(line);
+
+            fs.delete(calc_attributes_info_path, true);
+            fs.delete(output_path, true);
+        }
+
+        fs.delete(tmp_path, true);
     }
 
     private static void summarizeData() throws Exception {
-        Job job = Job.getInstance(new Configuration());
+        Job job = Job.getInstance();
         job.setJarByClass(C4_5.class);
         job.setJobName("C4.5_summarizeData");
 
-        FileInputFormat.addInputPath(job, new Path(input_path));
-        FileOutputFormat.setOutputPath(job, new Path(summarized_data_path));
+        FileInputFormat.addInputPath(job, input_path);
+        FileOutputFormat.setOutputPath(job, summarized_data_path);
 
         job.setMapperClass(SummarizeMapper.class);
         job.setReducerClass(SummarizeReducer.class);
@@ -70,13 +103,18 @@ public class C4_5 {
         job.waitForCompletion(true);
     }
 
-    private static void calcAttributesInfo() throws Exception {
-        Job job = Job.getInstance();
+    private static void calcAttributesInfo(Map<String, String> conditions) throws Exception {
+        Configuration conf = new Configuration();
+        for (Entry<String, String> condition : conditions.entrySet()) {
+            conf.setStrings(condition.getKey(), condition.getValue());
+        }
+
+        Job job = Job.getInstance(conf);
         job.setJarByClass(C4_5.class);
         job.setJobName("C4.5_calcAttributesInfo");
 
-        FileInputFormat.addInputPath(job, new Path(summarized_data_path));
-        FileOutputFormat.setOutputPath(job, new Path(calc_attributes_info_path));
+        FileInputFormat.addInputPath(job, summarized_data_path);
+        FileOutputFormat.setOutputPath(job, calc_attributes_info_path);
 
         job.setMapperClass(AttributeInfoMapper.class);
         job.setReducerClass(AttributeInfoReducer.class);
@@ -96,8 +134,8 @@ public class C4_5 {
         job.setJarByClass(C4_5.class);
         job.setJobName("C4.5_findBestAttribute");
 
-        FileInputFormat.addInputPath(job, new Path(calc_attributes_info_path));
-        FileOutputFormat.setOutputPath(job, new Path(output_path));
+        FileInputFormat.addInputPath(job, calc_attributes_info_path);
+        FileOutputFormat.setOutputPath(job, output_path);
 
         job.setMapperClass(FindBestAttributeMapper.class);
         job.setReducerClass(FindBestAttributeReducer.class);

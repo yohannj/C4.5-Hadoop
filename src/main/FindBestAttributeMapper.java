@@ -32,6 +32,7 @@ import org.apache.hadoop.mapreduce.Mapper;
 public class FindBestAttributeMapper extends Mapper<Text, MapWritable, NullWritable, AttributeGainRatioWritable> {
 
     public void map(Text key, MapWritable value, Context context) throws IOException, InterruptedException {
+        TextArrayWritable values = getValues(value);
         Map<Text, Integer> tuple_per_split = getTuplePerSplit(value);
 
         int tot_tuple = 0;
@@ -43,7 +44,20 @@ public class FindBestAttributeMapper extends Mapper<Text, MapWritable, NullWrita
         double gain = gain(global_entropy, tuple_per_split, value, tot_tuple);
         DoubleWritable gain_ratio = new DoubleWritable(gainRatio(gain, tuple_per_split, tot_tuple));
 
-        context.write(NullWritable.get(), new AttributeGainRatioWritable(key, gain_ratio));
+        context.write(NullWritable.get(), new AttributeGainRatioWritable(key, values, gain_ratio));
+    }
+
+    private TextArrayWritable getValues(MapWritable value) {
+        TextArrayWritable res = new TextArrayWritable();
+        Text[] tmp_res = new Text[value.keySet().size()];
+
+        int index = 0;
+        for (Writable w : value.keySet()) {
+            tmp_res[index++] = (Text) w;
+        }
+
+        res.set(tmp_res);
+        return res;
     }
 
     private Map<Text, Integer> getTuplePerSplit(MapWritable data) {
