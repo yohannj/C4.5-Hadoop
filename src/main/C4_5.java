@@ -144,8 +144,7 @@ public class C4_5 {
         job.setMapOutputKeyClass(NullWritable.class);
         job.setMapOutputValueClass(AttributeGainRatioWritable.class);
         job.setOutputKeyClass(NullWritable.class);
-        job.setOutputValueClass(AttributeGainRatioWritable.class);
-        //job.setOutputFormatClass(SequenceFileOutputFormat.class);
+        job.setOutputValueClass(Text.class);
 
         job.waitForCompletion(true);
     }

@@ -21,21 +21,24 @@ import java.io.IOException;
 
 import org.apache.hadoop.io.DoubleWritable;
 import org.apache.hadoop.io.NullWritable;
+import org.apache.hadoop.io.Text;
 import org.apache.hadoop.mapreduce.Reducer;
 
-public class FindBestAttributeReducer extends Reducer<NullWritable, AttributeGainRatioWritable, NullWritable, AttributeGainRatioWritable> {
+public class FindBestAttributeReducer extends Reducer<NullWritable, AttributeGainRatioWritable, NullWritable, Text> {
 
     public void reduce(NullWritable key, Iterable<AttributeGainRatioWritable> values, Context context) throws IOException, InterruptedException {
+        int nb_attributes_left = -1;
         AttributeGainRatioWritable best_attribute = null;
         DoubleWritable best_gain_ratio = new DoubleWritable(-Double.MAX_VALUE);
 
         for (AttributeGainRatioWritable value : values) {
+            ++nb_attributes_left;
             if (value.getGainRatio().compareTo(best_gain_ratio) > 0) {
                 best_gain_ratio = value.getGainRatio();
                 best_attribute = value;
             }
         }
 
-        context.write(key, best_attribute);
+        context.write(key, new Text(best_attribute.toString() + "," + nb_attributes_left));
     }
 }
