@@ -20,8 +20,11 @@ package main;
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
 import java.util.ArrayDeque;
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Deque;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 
@@ -62,25 +65,43 @@ public class C4_5 {
         //Job which key result is a line of data and value is a counter
         summarizeData();
 
-        Map<Map<String, String>, String> last_node_of = new HashMap<Map<String, String>, String>();
+        Map<Map<String, String>, String> classification = new HashMap<Map<String, String>, String>();
         Deque<Map<String, String>> conditions_to_test = new ArrayDeque<Map<String, String>>();
 
         Map<String, String> init = new HashMap<String, String>();
-        last_node_of.put(init, null);
         conditions_to_test.add(init);
 
         while (!conditions_to_test.isEmpty()) {
-            calcAttributesInfo(conditions_to_test.pop());
+            Map<String, String> conditions = conditions_to_test.pop();
+            calcAttributesInfo(conditions);
             findBestAttribute();
 
             BufferedReader br = new BufferedReader(new InputStreamReader(fs.open(new Path(output_path + "/part-r-00000"))));
-            String line;
-            line = br.readLine();
-            System.out.println(line);
+            String[] line = br.readLine().split(",");
+
+            String attribute = line[0];
+            boolean cannot_go_deeper = line[line.length - 1].equals("0");
+
+            Map<String, String> next_conditions;
+            for (int i = 1; i < line.length - 1; ++i) {
+                String[] value_info = line[i].split(" ");
+
+                next_conditions = new HashMap<String, String>(conditions);
+                next_conditions.put(attribute, value_info[0]);
+
+                if (cannot_go_deeper || value_info[1].equals("1")) {
+                    classification.put(next_conditions, value_info[2]);
+                } else {
+                    conditions_to_test.add(next_conditions);
+                }
+
+            }
 
             fs.delete(calc_attributes_info_path, true);
             fs.delete(output_path, true);
         }
+
+        printClassifications(classification);
 
         fs.delete(tmp_path, true);
     }
@@ -149,4 +170,30 @@ public class C4_5 {
         job.waitForCompletion(true);
     }
 
+    private static void printClassifications(Map<Map<String, String>, String> classification) {
+        List<String> msgs = new ArrayList<String>();
+
+        String msg;
+        for (Map<String, String> conditions : classification.keySet()) {
+            msg = "";
+
+            List<String> key_sorted = new ArrayList<String>(conditions.keySet());
+            Collections.sort(key_sorted);
+
+            for (int i = 0; i < key_sorted.size(); ++i) {
+                msg += key_sorted.get(i) + "=" + conditions.get(key_sorted.get(i)) + ", ";
+            }
+
+            msg += "CLASSIFICATION: " + classification.get(conditions);
+
+            msgs.add(msg);
+        }
+
+        Collections.sort(msgs);
+
+        for (int i = 0; i < msgs.size(); ++i) {
+            System.out.println(msgs.get(i));
+        }
+
+    }
 }
