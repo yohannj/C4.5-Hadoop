@@ -52,8 +52,18 @@ public class FindBestAttributeMapper extends Mapper<Text, MapWritable, NullWrita
         Text[] tmp_res = new Text[value.keySet().size()];
 
         int index = 0;
-        for (Writable w : value.keySet()) {
-            tmp_res[index++] = (Text) w;
+        for (Writable w1 : value.keySet()) {
+            MapWritable mw = (MapWritable) value.get(w1);
+            int nb_class = mw.size();
+            Text prefered_class = new Text();
+            IntWritable best_count = new IntWritable(Integer.MIN_VALUE);
+            for (Writable w2 : mw.keySet()) {
+                if (((IntWritable) mw.get(w2)).compareTo(best_count) > 0) {
+                    best_count = (IntWritable) mw.get(w2);
+                    prefered_class.set((Text) w2);
+                }
+            }
+            tmp_res[index++] = new Text(((Text) w1).toString() + " " + nb_class + " " + prefered_class.toString());
         }
 
         res.set(tmp_res);
