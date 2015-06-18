@@ -28,14 +28,14 @@ public class FindBestAttributeReducer extends Reducer<NullWritable, AttributeGai
 
     public void reduce(NullWritable key, Iterable<AttributeGainRatioWritable> values, Context context) throws IOException, InterruptedException {
         int nb_attributes_left = -1;
-        AttributeGainRatioWritable best_attribute = null;
+        AttributeGainRatioWritable best_attribute = new AttributeGainRatioWritable();
         DoubleWritable best_gain_ratio = new DoubleWritable(-Double.MAX_VALUE);
 
         for (AttributeGainRatioWritable value : values) {
             ++nb_attributes_left;
             if (value.getGainRatio().compareTo(best_gain_ratio) > 0) {
-                best_gain_ratio = value.getGainRatio();
-                best_attribute = value;
+                best_gain_ratio = new DoubleWritable(value.getGainRatio().get());
+                best_attribute.set(new Text(value.getname()), new TextArrayWritable(value.getValues()), new DoubleWritable(value.getGainRatio().get()));
             }
         }
 

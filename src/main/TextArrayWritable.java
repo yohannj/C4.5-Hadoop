@@ -27,6 +27,11 @@ public class TextArrayWritable extends ArrayWritable implements WritableComparab
     public TextArrayWritable() {
         super(Text.class);
     }
+    
+    public TextArrayWritable(TextArrayWritable taw) {
+        super(Text.class);
+        set(taw.get().clone());
+    }
 
     @Override
     public int compareTo(TextArrayWritable o) {
