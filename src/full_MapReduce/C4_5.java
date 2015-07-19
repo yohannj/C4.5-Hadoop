@@ -15,7 +15,7 @@
  * along with this implementation of C4.5. If not, see <http://www.gnu.org/licenses/>.
  */
 
-package main;
+package full_MapReduce;
 
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
@@ -47,11 +47,11 @@ public class C4_5 {
     private static Path tmp_path;
     private static Path summarized_data_path;
     private static Path calc_attributes_info_path;
-    private static Path output_path;
+    private static Path best_attribute_result_path;
 
     public static void main(String[] args) throws Exception {
-        if (args.length != 3) {
-            System.err.println("Usage: main/C4_5 <input path> <tmp path> <output path>");
+        if (args.length != 2) {
+            System.err.println("Usage: main/C4_5 <input path> <tmp path>");
             System.exit(-1);
         }
 
@@ -59,7 +59,7 @@ public class C4_5 {
         tmp_path = new Path(args[1]);
         summarized_data_path = new Path(args[1] + "/summarized_data");
         calc_attributes_info_path = new Path(args[1] + "/calc_attributes_info");
-        output_path = new Path(args[2]);
+        best_attribute_result_path = new Path(args[1] + "/best_attribute_result");
         FileSystem fs = FileSystem.get(new Configuration());
 
         //Job which key result is a line of data and value is a counter
@@ -79,7 +79,7 @@ public class C4_5 {
             calcAttributesInfo(conditions);
             findBestAttribute();
             try {
-                BufferedReader br = new BufferedReader(new InputStreamReader(fs.open(new Path(output_path + "/part-r-00000"))));
+                BufferedReader br = new BufferedReader(new InputStreamReader(fs.open(new Path(best_attribute_result_path + "/part-r-00000"))));
                 String[] line = br.readLine().split(",");
 
                 String attribute = line[0];
@@ -110,7 +110,7 @@ public class C4_5 {
                     exceptions_conditions += "\n";
             }
             fs.delete(calc_attributes_info_path, true);
-            fs.delete(output_path, true);
+            fs.delete(best_attribute_result_path, true);
 
         }
 
@@ -170,7 +170,7 @@ public class C4_5 {
         job.setJobName("C4.5_findBestAttribute");
 
         FileInputFormat.addInputPath(job, calc_attributes_info_path);
-        FileOutputFormat.setOutputPath(job, output_path);
+        FileOutputFormat.setOutputPath(job, best_attribute_result_path);
 
         job.setMapperClass(FindBestAttributeMapper.class);
         job.setReducerClass(FindBestAttributeReducer.class);

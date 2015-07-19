@@ -15,7 +15,7 @@
  * along with this implementation of C4.5. If not, see <http://www.gnu.org/licenses/>.
  */
 
-package main;
+package full_MapReduce;
 
 import java.io.IOException;
 import java.util.HashMap;
