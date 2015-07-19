@@ -1,4 +1,4 @@
-# C4.5_Hadoop
+# C4.5-Hadoop
 
 Implementation of C4.5 decision tree algorithm using Hadoop MapReduce.
 
