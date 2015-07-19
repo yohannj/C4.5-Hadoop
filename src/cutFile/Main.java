@@ -26,7 +26,7 @@ import java.io.Writer;
 import java.util.Scanner;
 
 public class Main {
-    private static final int MAX_LINE_PER_FILE = 500000;
+    private static final int MAX_LINE_PER_FILE = 1670000;
     private static final String SPLIT_CHAR = "\t";
 
     /**

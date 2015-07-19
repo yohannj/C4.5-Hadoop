@@ -28,7 +28,9 @@ public class FindBestAttributeReducer extends Reducer<NullWritable, AttributeGai
 
     public void reduce(NullWritable key, Iterable<AttributeGainRatioWritable> values, Context context) throws IOException, InterruptedException {
         int nb_attributes_left = -1;
-        AttributeGainRatioWritable best_attribute = new AttributeGainRatioWritable();
+        TextArrayWritable DEBUG = new TextArrayWritable();
+        DEBUG.set(new Text[]{new Text("ERROR")});
+        AttributeGainRatioWritable best_attribute = new AttributeGainRatioWritable(new Text("ERROR"), DEBUG, new DoubleWritable(0.0));
         DoubleWritable best_gain_ratio = new DoubleWritable(-Double.MAX_VALUE);
 
         for (AttributeGainRatioWritable value : values) {
