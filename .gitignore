@@ -3,3 +3,4 @@ bin/
 input/
 *.jar
 C4.5_Hadoop_*/
+src/test/
