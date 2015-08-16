@@ -29,6 +29,8 @@ import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.Path;
 import org.apache.hadoop.io.IntWritable;
+import org.apache.hadoop.io.SequenceFile;
+import org.apache.hadoop.io.SequenceFile.Reader.Option;
 import org.apache.hadoop.mapreduce.Job;
 import org.apache.hadoop.mapreduce.lib.input.FileInputFormat;
 import org.apache.hadoop.mapreduce.lib.output.FileOutputFormat;
@@ -40,6 +42,8 @@ public class C4_5 {
     private static Path tmp_path;
     private static Path summarized_data_path;
 
+    private static Map<String[], Integer> summarized_data;
+
     public static void main(String[] args) throws Exception {
         if (args.length != 2) {
             System.err.println("Usage: main/C4_5 <input path> <tmp path>");
@@ -49,19 +53,19 @@ public class C4_5 {
         input_path = new Path(args[0]);
         tmp_path = new Path(args[1]);
         summarized_data_path = new Path(args[1] + "/summarized_data");
-        FileSystem fs = FileSystem.get(new Configuration());
 
-        //Job which key result is a line of data and value is a counter
+        //Put each unique line of data associated with their count into summarized_data 
         summarizeData();
+        FileSystem.get(new Configuration()).delete(tmp_path, true);
 
         //Store rule, associating a set of attribute/value pair to a class.
         Map<Map<String, String>, String> classification = new HashMap<Map<String, String>, String>();
-        
+
         Deque<Map<String, String>> conditions_to_test = new ArrayDeque<Map<String, String>>();
 
         Map<String, String> init = new HashMap<String, String>();
         conditions_to_test.add(init);
-        
+
         String exceptions_conditions = "";
 
         while (!conditions_to_test.isEmpty()) {
@@ -69,13 +73,11 @@ public class C4_5 {
             Map<String, String> conditions = conditions_to_test.pop();
             calcAttributesInfo(conditions);
             findBestAttribute();
-            
+
         }
 
         printClassifications(classification);
         System.out.println(exceptions_conditions);
-
-        fs.delete(tmp_path, true);
     }
 
     private static void summarizeData() throws Exception {
@@ -94,14 +96,28 @@ public class C4_5 {
         job.setOutputFormatClass(SequenceFileOutputFormat.class);
 
         job.waitForCompletion(false);
+
+        /* Store it locally */
+        Option optPath = SequenceFile.Reader.file(new Path(summarized_data_path.toString() + "/part-r-00000"));
+        SequenceFile.Reader reader = new SequenceFile.Reader(new Configuration(), optPath);
+
+        TextArrayWritable key = new TextArrayWritable();
+        IntWritable val = new IntWritable();
+
+        summarized_data = new HashMap<String[], Integer>();
+        while (reader.next(key, val)) {
+            summarized_data.put(key.toStrings(), val.get());
+        }
+
+        reader.close();
     }
 
     private static void calcAttributesInfo(Map<String, String> conditions) throws Exception {
-        
+
     }
 
     private static void findBestAttribute() throws Exception {
-        
+
     }
 
     private static void printClassifications(Map<Map<String, String>, String> classification) {
